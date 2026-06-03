@@ -1,0 +1,33 @@
+{
+  "ssh": {
+    "host": "",
+    "port": 22,
+    "username": "",
+    "password": "",
+    "sudo_password": "",
+    "timeout_seconds": 30
+  },
+  "docker": {
+    "container_name": "neokikoeru",
+    "remote_stage_dir": "/tmp/neokikoeru_docker_patch"
+  },
+  "patch": {
+    "arch": "amd64",
+    "patch_config_file": "patch_config.json",
+    "local_workspace_dir": "docker_patch_workspace"
+  },
+  "targets": [
+    {
+      "remote_path": "/usr/local/bin/neokikoeru",
+      "local_backup_name": "docker_neokikoeru.original.bin",
+      "local_patched_name": "docker_neokikoeru.patched.bin",
+      "remote_mode": "755"
+    },
+    {
+      "remote_path": "/var/lib/neokikoeru/neokikoeru.bin",
+      "local_backup_name": "docker_neokikoeru_volume.original.bin",
+      "local_patched_name": "docker_neokikoeru_volume.patched.bin",
+      "remote_mode": "755"
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "version": "3.5.3",
+  "architectures": {
+    "amd64": {
+      "targets": [
+        {
+          "name": "fslist_gate",
+          "scope": "POST /api/v1/fs/list",
+          "confidence": "high",
+          "prefix_bytes": "45 8b 40 20 45 85 c0 75 5d",
+          "patch_offset_from_prefix": 7,
+          "orig_bytes": "75 5d",
+          "patched_bytes": "eb 5d"
+        },
+        {
+          "name": "fsdownload_gate",
+          "scope": "HEAD/GET /api/v1/fs/download",
+          "confidence": "high",
+          "prefix_bytes": "45 8b 40 20 45 85 c0 75 7f",
+          "patch_offset_from_prefix": 7,
+          "orig_bytes": "75 7f",
+          "patched_bytes": "eb 7f"
+        },
+        {
+          "name": "sysinfo_ui_gate",
+          "scope": "GET /api/v1/sysinfo -> license_activated",
+          "confidence": "high",
+          "prefix_bytes": "8b 52 20 85 d2 74 04 c6 40 30 01",
+          "patch_offset_from_prefix": 5,
+          "orig_bytes": "74 04",
+          "patched_bytes": "90 90"
+        }
+      ]
+    },
+    "arm64": {
+      "targets": [
+        {
+          "name": "fslist_gate",
+          "scope": "POST /api/v1/fs/list",
+          "confidence": "high",
+          "prefix_bytes": "a6 10 40 f9 db 00 80 39 c6 80 00 91 c6 fc df 88 26 03 00 35",
+          "patch_offset_from_prefix": 16,
+          "orig_bytes": "26 03 00 35",
+          "patched_bytes": "19 00 00 14"
+        },
+        {
+          "name": "fsdownload_gate",
+          "scope": "HEAD/GET /api/v1/fs/download",
+          "confidence": "high",
+          "prefix_bytes": "c6 80 00 91 c6 fc df 88 66 02 00 35",
+          "patch_offset_from_prefix": 8,
+          "orig_bytes": "66 02 00 35",
+          "patched_bytes": "13 00 00 14"
+        },
+        {
+          "name": "sysinfo_ui_gate",
+          "scope": "GET /api/v1/sysinfo -> license_activated",
+          "confidence": "high",
+          "effect": "抹掉 B.NE，强制走 cmp(x4[0x30], 2) 的等于分支，三平台 arm64 命中的后续写入链完全同构",
+          "prefix_bytes": "e4 3f 40 f9 85 18 40 f9 bf 08 00 f1 61 00 00 54",
+          "patch_offset_from_prefix": 12,
+          "orig_bytes": "61 00 00 54",
+          "patched_bytes": "1f 20 03 d5"
+        }
+      ]
+    }
+  }
+}
