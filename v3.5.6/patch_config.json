@@ -1,0 +1,132 @@
+{
+  "version": "3.5.6",
+  "architectures": {
+    "amd64": {
+      "targets": [
+        {
+          "name": "fslist_gate",
+          "scope": "POST /api/v1/fs/list",
+          "confidence": "high",
+          "effect": "未激活分支原本返回 403；将 JNZ 改为 JMP 后跳过未激活阻断路径。",
+          "prefix_bytes": "45 8b 40 20 45 85 c0 75 5e",
+          "patch_offset_from_prefix": 7,
+          "orig_bytes": "75 5e",
+          "patched_bytes": "eb 5e",
+          "evidence": {
+            "file_prefix_offset": "0xb79e86",
+            "file_patch_offset": "0xb79e8d",
+            "ida_prefix_ea": "0x140b7aa86",
+            "ida_patch_ea": "0x140b7aa8d",
+            "route_chain": "/api/v1 + POST /fs/list -> sub_140B93F00 -> sub_140B7A9C0"
+          }
+        },
+        {
+          "name": "fsdownload_gate",
+          "scope": "HEAD/GET /api/v1/fs/download",
+          "confidence": "high",
+          "effect": "未激活分支原本返回 403；将 JNZ 改为 JMP 后跳过未激活阻断路径。",
+          "prefix_bytes": "45 8b 40 20 45 85 c0 75 7f",
+          "patch_offset_from_prefix": 7,
+          "orig_bytes": "75 7f",
+          "patched_bytes": "eb 7f",
+          "evidence": {
+            "file_prefix_offset": "0xb7a449",
+            "file_patch_offset": "0xb7a450",
+            "ida_prefix_ea": "0x140b7b049",
+            "ida_patch_ea": "0x140b7b050",
+            "route_chain": "/api/v1 + HEAD/GET /fs/download -> sub_140B93F60 -> sub_140B7AFA0"
+          }
+        },
+        {
+          "name": "sysinfo_ui_gate",
+          "scope": "GET /api/v1/sysinfo -> license_activated",
+          "confidence": "high",
+          "effect": "新版不再使用 v3.5.3 的短 JZ 分支；改为 setnz 写入响应对象。这里将 setnz [rax+0x20] 改成 mov byte ptr [rax+0x20], 1。",
+          "prefix_bytes": "8b 74 24 3c 85 f6 0f 95 40 20",
+          "patch_offset_from_prefix": 6,
+          "orig_bytes": "0f 95 40 20",
+          "patched_bytes": "c6 40 20 01",
+          "evidence": {
+            "file_prefix_offset": "0xb80353",
+            "file_patch_offset": "0xb80359",
+            "ida_prefix_ea": "0x140b80f53",
+            "ida_patch_ea": "0x140b80f59",
+            "route_chain": "/api/v1 + GET /sysinfo -> sub_140B936C0 -> sub_140B80E20",
+            "old_v3_5_3_prefix_status": "not_found_in_v3.5.6"
+          }
+        }
+      ]
+    },
+    "arm64": {
+      "targets": [
+        {
+          "name": "fslist_gate",
+          "scope": "POST /api/v1/fs/list",
+          "confidence": "high",
+          "effect": "未激活分支原本返回 license not activated / 403；将 CBNZ 改成同目标无条件 B，强制进入已激活路径。",
+          "prefix_bytes": "a6 10 40 f9 db 00 80 39 c6 80 00 91 c6 fc df 88 26 03 00 35",
+          "patch_offset_from_prefix": 16,
+          "orig_bytes": "26 03 00 35",
+          "patched_bytes": "19 00 00 14",
+          "evidence": {
+            "file_prefix_offset": "0x9dfb18",
+            "file_patch_offset": "0x9dfb28",
+            "ida_prefix_ea": "0x1409e0718",
+            "ida_patch_ea": "0x1409e0728",
+            "function": "sub_1409E06A0",
+            "function_start": "0x1409e06a0",
+            "route_wrapper": "0x1409f6e20",
+            "route_chain": "/api/v1 + POST /fs/list -> wrapper 0x1409F6E20 -> sub_1409E06A0",
+            "original_instruction": "CBNZ W6, loc_1409E078C",
+            "patched_instruction": "B loc_1409E078C"
+          }
+        },
+        {
+          "name": "fsdownload_gate",
+          "scope": "HEAD/GET /api/v1/fs/download",
+          "confidence": "high",
+          "effect": "未激活分支原本返回 license not activated / 403；将 CBNZ 改成同目标无条件 B，强制进入已激活路径。",
+          "prefix_bytes": "c6 80 00 91 c6 fc df 88 66 02 00 35",
+          "patch_offset_from_prefix": 8,
+          "orig_bytes": "66 02 00 35",
+          "patched_bytes": "13 00 00 14",
+          "evidence": {
+            "file_prefix_offset": "0x9df6a4",
+            "file_patch_offset": "0x9df6ac",
+            "ida_prefix_ea": "0x1409e02a4",
+            "ida_patch_ea": "0x1409e02ac",
+            "function": "sub_1409E0210",
+            "function_start": "0x1409e0210",
+            "route_wrapper": "0x1409f6dc0",
+            "route_chain": "/api/v1 + HEAD/GET /fs/download -> wrapper 0x1409F6DC0 -> sub_1409E0210",
+            "original_instruction": "CBNZ W6, loc_1409E02F8",
+            "patched_instruction": "B loc_1409E02F8"
+          }
+        },
+        {
+          "name": "sysinfo_ui_gate",
+          "scope": "GET /api/v1/sysinfo -> license_activated",
+          "confidence": "medium-high-static",
+          "effect": "沿用 v3.5.3 arm64 UI 候选形态；将状态比较后的 B.NE 抹成 NOP，强制走激活态响应分支。",
+          "prefix_bytes": "e4 3f 40 f9 85 18 40 f9 bf 08 00 f1 61 00 00 54",
+          "patch_offset_from_prefix": 12,
+          "orig_bytes": "61 00 00 54",
+          "patched_bytes": "1f 20 03 d5",
+          "evidence": {
+            "file_prefix_offset": "0x9ded10",
+            "file_patch_offset": "0x9ded1c",
+            "ida_prefix_ea": "0x1409df910",
+            "ida_patch_ea": "0x1409df91c",
+            "function": "sub_1409DF670",
+            "function_start": "0x1409df670",
+            "route_wrapper": "0x1409f65d0",
+            "route_chain": "/api/v1 + GET /sysinfo -> wrapper 0x1409F65D0 -> sub_1409DF670",
+            "original_instruction": "B.NE loc_1409DF928",
+            "patched_instruction": "NOP",
+            "runtime_status": "static-confirmed; keep separate profile until runtime UI check"
+          }
+        }
+      ]
+    }
+  }
+}
